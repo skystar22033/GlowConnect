@@ -57,8 +57,18 @@ const userSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
       },
+      
     ],
+     // Add avatar preferences
+    avatarPreferences: {
+      style: { type: String, default: 'avataaars' },
+      skinColor: { type: String, default: 'F5D0B8' },
+      hairColor: { type: String, default: '1A1A1A' },
+      outfitColor: { type: String, default: '2C3E50' },
+      backgroundColor: { type: String, default: 'transparent' },
+    },
   },
+
   { timestamps: true }
 );
 
