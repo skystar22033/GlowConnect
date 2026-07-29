@@ -115,6 +115,8 @@ const deletePost = asyncHandler(async (req, res) => {
 
 // @route   GET /api/posts/feed?page=1&limit=10
 // @access  Private (needs req.user to know who they follow)
+// @route   GET /api/feed
+// @access  Private
 const getFeed = asyncHandler(async (req, res) => {
   const page = Math.max(parseInt(req.query.page) || 1, 1);
   const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 50);
@@ -129,7 +131,11 @@ const getFeed = asyncHandler(async (req, res) => {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .populate('author', AUTHOR_FIELDS),
+      .populate('author', 'username fullName profileImage')
+      .populate({
+        path: 'comments',
+        populate: { path: 'author', select: 'username fullName profileImage' }
+      }),
     Post.countDocuments({ author: { $in: authorIds } }),
   ]);
 
@@ -141,7 +147,6 @@ const getFeed = asyncHandler(async (req, res) => {
     hasMore: skip + posts.length < total,
   });
 });
-
 // @route   GET /api/posts/user/:userId?page=1&limit=10
 // @access  Public
 const getUserPosts = asyncHandler(async (req, res) => {

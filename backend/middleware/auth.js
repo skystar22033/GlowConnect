@@ -1,24 +1,28 @@
 const jwt = require('jsonwebtoken');
-const asyncHandler = require('express-async-handler');
 const User = require('../models/User');
 const ApiError = require('../utils/ApiError');
 
-// Verifies the Bearer token, attaches the authenticated user to req.user
-const protect = asyncHandler(async (req, res, next) => {
-  let token;
-
-  const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    token = authHeader.split(' ')[1];
-  }
-
-  if (!token) {
-    throw new ApiError(401, 'Not authorized, no token provided');
-  }
-
+/**
+ * Protect middleware - Verifies JWT token and attaches user to request
+ */
+const protect = async (req, res, next) => {
   try {
+    let token;
+
+    // Check for token in Authorization header
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+
+    if (!token) {
+      throw new ApiError(401, 'Not authorized, no token');
+    }
+
+    // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id);
+
+    // Get user from token
+    const user = await User.findById(decoded.id).select('-password');
 
     if (!user) {
       throw new ApiError(401, 'Not authorized, user no longer exists');
@@ -26,13 +30,15 @@ const protect = asyncHandler(async (req, res, next) => {
 
     req.user = user;
     next();
-  } catch (err) {
-    if (err instanceof ApiError) throw err;
-    if (err.name === 'TokenExpiredError') {
-      throw new ApiError(401, 'Session expired, please log in again');
+  } catch (error) {
+    if (error.name === 'JsonWebTokenError') {
+      next(new ApiError(401, 'Not authorized, invalid token'));
+    } else if (error.name === 'TokenExpiredError') {
+      next(new ApiError(401, 'Not authorized, token expired'));
+    } else {
+      next(error);
     }
-    throw new ApiError(401, 'Not authorized, invalid token');
   }
-});
+};
 
 module.exports = { protect };

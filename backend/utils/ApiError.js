@@ -1,12 +1,18 @@
-// Custom error class so controllers can `throw new ApiError(404, "User not found")`
-// and let the centralized error handler format the response.
-
+/**
+ * Custom API Error class
+ * Extends the native Error class to include status code
+ */
 class ApiError extends Error {
-  constructor(statusCode, message, errors = null) {
+  constructor(statusCode, message, isOperational = true, stack = '') {
     super(message);
     this.statusCode = statusCode;
-    this.errors = errors;
-    Error.captureStackTrace(this, this.constructor);
+    this.isOperational = isOperational;
+    
+    if (stack) {
+      this.stack = stack;
+    } else {
+      Error.captureStackTrace(this, this.constructor);
+    }
   }
 }
 
