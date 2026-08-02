@@ -4,6 +4,7 @@ import { Loader2, ArrowLeft } from 'lucide-react';
 import { toast } from 'react-toastify';
 import MainLayout from '../components/layout/MainLayout';
 import PostCard from '../components/post/PostCard';
+import PostSkeleton from '../components/post/PostSkeleton';
 import { postApi } from '../api/endpoints';
 
 export default function PostDetailPage() {
@@ -29,16 +30,12 @@ export default function PostDetailPage() {
       <div className="mx-auto max-w-2xl">
         <button
           onClick={() => navigate(-1)}
-          className="mb-4 flex items-center gap-1.5 text-sm text-text-muted hover:text-text-primary"
+          className="mb-4 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium text-text-muted transition hover:bg-surface-raised hover:text-text-primary"
         >
           <ArrowLeft className="h-4 w-4" /> Back
         </button>
 
-        {loading ? (
-          <div className="flex justify-center py-16">
-            <Loader2 className="h-6 w-6 animate-spin text-glow" />
-          </div>
-        ) : post ? (
+        {loading ? <PostSkeleton /> : post ? (
           <PostCard post={post} onDeleted={() => navigate('/feed')} />
         ) : null}
       </div>

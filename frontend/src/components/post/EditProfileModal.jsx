@@ -63,11 +63,11 @@ export default function EditProfileModal({ profile, onClose, onSaved }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm">
-      <div className="card w-full max-w-md p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 px-4 backdrop-blur-sm animate-fade-in">
+      <div className="card w-full max-w-md animate-pop-in p-6 shadow-floating">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-display text-lg font-bold">Edit profile</h2>
-          <button onClick={onClose} className="rounded-full p-1.5 text-text-faint hover:bg-surface-raised">
+          <h2 className="font-display text-lg font-bold text-text-primary">Edit profile</h2>
+          <button onClick={onClose} className="rounded-full p-1.5 text-text-faint transition hover:bg-surface-raised">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -76,7 +76,7 @@ export default function EditProfileModal({ profile, onClose, onSaved }) {
           <div className="flex justify-center">
             <button type="button" onClick={handleFilePick} className="relative" disabled={uploadingAvatar}>
               <Avatar src={profileImage} name={fullName} size="xl" />
-              <span className="absolute bottom-0 right-0 rounded-full bg-glow p-1.5 text-ink">
+              <span className="absolute bottom-0 right-0 rounded-full bg-gradient-brand p-1.5 text-white shadow-glow ring-2 ring-white">
                 {uploadingAvatar ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 ) : (
@@ -95,12 +95,12 @@ export default function EditProfileModal({ profile, onClose, onSaved }) {
           <p className="-mt-2 text-center text-xs text-text-faint">Tap the photo to upload a new one</p>
 
           <div>
-            <label className="mb-1 block text-sm text-text-muted">Full name</label>
+            <label className="mb-1 block text-sm font-medium text-text-secondary">Full name</label>
             <input className="input-field" value={fullName} onChange={(e) => setFullName(e.target.value)} />
           </div>
 
           <div>
-            <label className="mb-1 block text-sm text-text-muted">Bio</label>
+            <label className="mb-1 block text-sm font-medium text-text-secondary">Bio</label>
             <textarea
               className="input-field resize-none"
               rows={3}
@@ -121,4 +121,3 @@ export default function EditProfileModal({ profile, onClose, onSaved }) {
     </div>
   );
 }
-

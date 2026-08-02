@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { X, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { X, Image as ImageIcon, Loader2, Sparkles } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { postApi } from '../../api/endpoints';
 import compressImage from '../../utils/compressImage';
@@ -57,11 +57,14 @@ export default function CreatePostModal({ onClose, onCreated, editingPost = null
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm">
-      <div className="card w-full max-w-lg p-5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 px-4 backdrop-blur-sm animate-fade-in">
+      <div className="card w-full max-w-lg animate-pop-in p-5 shadow-floating">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-display text-lg font-bold">{isEditing ? 'Edit post' : 'Create post'}</h2>
-          <button onClick={onClose} className="rounded-full p-1.5 text-text-faint hover:bg-surface-raised">
+          <h2 className="flex items-center gap-2 font-display text-lg font-bold text-text-primary">
+            <Sparkles className="h-4 w-4 text-primary" />
+            {isEditing ? 'Edit post' : 'Create post'}
+          </h2>
+          <button onClick={onClose} className="rounded-full p-1.5 text-text-faint transition hover:bg-surface-raised">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -81,14 +84,14 @@ export default function CreatePostModal({ onClose, onCreated, editingPost = null
 
           {preview && (
             <div className="relative mt-2">
-              <img src={preview} alt="Preview" className="max-h-64 w-full rounded-xl object-cover" />
+              <img src={preview} alt="Preview" className="max-h-64 w-full rounded-2xl object-cover" />
               <button
                 type="button"
                 onClick={() => {
                   setPreview(null);
                   setImageFile(null);
                 }}
-                className="absolute right-2 top-2 rounded-full bg-ink/80 p-1.5 hover:bg-ink"
+                className="absolute right-2 top-2 rounded-full bg-ink/80 p-1.5 text-white transition hover:bg-ink"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -99,7 +102,7 @@ export default function CreatePostModal({ onClose, onCreated, editingPost = null
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="flex items-center gap-2 rounded-full px-3 py-2 text-sm text-text-muted transition hover:bg-surface-raised hover:text-glow"
+              className="flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-text-muted transition hover:bg-surface-raised hover:text-primary"
             >
               <ImageIcon className="h-4 w-4" /> Add photo
             </button>

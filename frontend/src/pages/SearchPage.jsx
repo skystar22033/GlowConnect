@@ -48,12 +48,12 @@ export default function SearchPage() {
   return (
     <MainLayout>
       <div className="mx-auto max-w-xl space-y-4">
-        <h1 className="font-display text-2xl font-bold">Find people</h1>
+        <h1 className="font-display text-2xl font-bold text-text-primary">Find people</h1>
 
         <div className="relative">
-          <SearchIcon className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-faint" />
+          <SearchIcon className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-text-faint" />
           <input
-            className="input-field pl-10"
+            className="input-field pl-11"
             placeholder="Search by name or username…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -62,7 +62,7 @@ export default function SearchPage() {
 
         {loading && (
           <div className="flex justify-center py-6">
-            <Loader2 className="h-5 w-5 animate-spin text-glow" />
+            <Loader2 className="h-5 w-5 animate-spin text-primary" />
           </div>
         )}
 
@@ -76,7 +76,7 @@ export default function SearchPage() {
               <Link to={`/profile/${u._id}`} className="flex min-w-0 items-center gap-3">
                 <Avatar src={u.profileImage} name={u.fullName} size="md" />
                 <div className="min-w-0">
-                  <p className="truncate font-display font-semibold">{u.fullName}</p>
+                  <p className="truncate font-display font-semibold text-text-primary">{u.fullName}</p>
                   <p className="truncate text-sm text-text-faint">@{u.username}</p>
                 </div>
               </Link>

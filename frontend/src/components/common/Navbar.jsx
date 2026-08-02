@@ -2,7 +2,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { LogOut, User, Home, Search, PlusSquare, Sparkles } from 'lucide-react';
 
-export default function Navbar({ onCreatePost }) {
+export default function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -14,9 +14,9 @@ export default function Navbar({ onCreatePost }) {
 
   const isActive = (path) => location.pathname === path;
 
-  const navItem = (to, Icon, label, onClick) => (
-    <button
-      onClick={onClick || (() => navigate(to))}
+  const navLink = (to, Icon, label) => (
+    <Link
+      to={to}
       title={label}
       className={`relative flex h-10 w-10 items-center justify-center rounded-full transition-all duration-200 ${
         isActive(to)
@@ -25,7 +25,7 @@ export default function Navbar({ onCreatePost }) {
       }`}
     >
       <Icon className="h-[18px] w-[18px]" strokeWidth={isActive(to) ? 2.4 : 2} />
-    </button>
+    </Link>
   );
 
   return (
@@ -39,10 +39,10 @@ export default function Navbar({ onCreatePost }) {
         </Link>
 
         <div className="flex items-center gap-1.5 rounded-full bg-white/60 p-1.5 shadow-card ring-1 ring-border-light">
-          {navItem('/feed', Home, 'Feed')}
-          {navItem('/search', Search, 'Search')}
-          {navItem(null, PlusSquare, 'Create post', onCreatePost || (() => navigate('/feed')))}
-          {navItem(`/profile/${user?._id}`, User, 'Profile')}
+          {navLink('/feed', Home, 'Feed')}
+          {navLink('/search', Search, 'Search')}
+          {navLink('/feed', PlusSquare, 'Create post')}
+          {navLink(`/profile/${user?._id}`, User, 'Profile')}
           <button
             onClick={handleLogout}
             title="Log out"

@@ -54,7 +54,7 @@ export default function CommentSection({ postId, onCommentAdded, onCommentDelete
   };
 
   return (
-    <div className="mt-4 border-t border-border pt-4">
+    <div className="comment-section animate-fade-in">
       <form onSubmit={handleSubmit} className="mb-4 flex gap-2">
         <input
           value={text}
@@ -63,7 +63,7 @@ export default function CommentSection({ postId, onCommentAdded, onCommentDelete
           maxLength={500}
           className="input-field text-sm"
         />
-        <button type="submit" disabled={submitting || !text.trim()} className="btn-primary px-3">
+        <button type="submit" disabled={submitting || !text.trim()} className="btn-primary px-3.5">
           <Send className="h-4 w-4" />
         </button>
       </form>
@@ -77,9 +77,9 @@ export default function CommentSection({ postId, onCommentAdded, onCommentDelete
           {comments.map((comment) => (
             <li key={comment._id} className="flex items-start gap-2.5">
               <Avatar src={comment.author?.profileImage} name={comment.author?.fullName} size="sm" />
-              <div className="min-w-0 flex-1 rounded-xl bg-ink/40 px-3 py-2">
+              <div className="comment-body">
                 <div className="flex items-center justify-between gap-2">
-                  <p className="text-sm font-semibold">{comment.author?.fullName}</p>
+                  <p className="comment-username">{comment.author?.fullName}</p>
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-text-faint">
                       {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
@@ -87,14 +87,14 @@ export default function CommentSection({ postId, onCommentAdded, onCommentDelete
                     {comment.author?._id === user?._id && (
                       <button
                         onClick={() => handleDelete(comment._id)}
-                        className="text-text-faint transition hover:text-bloom"
+                        className="text-text-faint transition hover:text-accent"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
                     )}
                   </div>
                 </div>
-                <p className="text-sm text-text-muted">{comment.content}</p>
+                <p className="comment-text">{comment.content}</p>
               </div>
             </li>
           ))}

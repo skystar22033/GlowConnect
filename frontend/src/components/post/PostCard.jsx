@@ -17,6 +17,7 @@ export default function PostCard({ post, onDeleted, onUpdated }) {
   const [commentsCount, setCommentsCount] = useState(post.commentsCount ?? post.comments?.length ?? 0);
   const [busy, setBusy] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [justLiked, setJustLiked] = useState(false);
 
   const isOwner = user?._id === post.author?._id;
 
@@ -25,6 +26,10 @@ export default function PostCard({ post, onDeleted, onUpdated }) {
     const nextLiked = !liked;
     setLiked(nextLiked);
     setLikesCount((c) => c + (nextLiked ? 1 : -1));
+    if (nextLiked) {
+      setJustLiked(true);
+      setTimeout(() => setJustLiked(false), 450);
+    }
     try {
       await postApi.toggleLike(post._id);
     } catch (err) {
@@ -54,7 +59,7 @@ export default function PostCard({ post, onDeleted, onUpdated }) {
         <Link to={`/profile/${post.author?._id}`} className="flex items-center gap-3">
           <Avatar src={post.author?.profileImage} name={post.author?.fullName} size="md" />
           <div>
-            <p className="font-display font-semibold leading-tight">{post.author?.fullName}</p>
+            <p className="font-display font-semibold leading-tight text-text-primary">{post.author?.fullName}</p>
             <p className="text-xs text-text-faint">
               @{post.author?.username} · {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
             </p>
@@ -65,7 +70,7 @@ export default function PostCard({ post, onDeleted, onUpdated }) {
           <div className="flex gap-1">
             <button
               onClick={() => onUpdated?.(post)}
-              className="rounded-full p-2 text-text-faint transition hover:bg-surface-raised hover:text-glow"
+              className="rounded-full p-2 text-text-faint transition hover:bg-surface-raised hover:text-primary"
               title="Edit post"
             >
               <Pencil className="h-4 w-4" />
@@ -73,7 +78,7 @@ export default function PostCard({ post, onDeleted, onUpdated }) {
             <button
               onClick={handleDelete}
               disabled={busy}
-              className="rounded-full p-2 text-text-faint transition hover:bg-surface-raised hover:text-bloom"
+              className="rounded-full p-2 text-text-faint transition hover:bg-accent/10 hover:text-accent"
               title="Delete post"
             >
               <Trash2 className="h-4 w-4" />
@@ -90,7 +95,7 @@ export default function PostCard({ post, onDeleted, onUpdated }) {
           alt="Post attachment"
           loading="lazy"
           onClick={() => setLightboxOpen(true)}
-          className="mt-4 max-h-[480px] w-full cursor-zoom-in rounded-xl object-cover"
+          className="mt-4 max-h-[480px] w-full cursor-zoom-in rounded-2xl object-cover transition-transform duration-300 hover:scale-[1.01]"
         />
       )}
 
@@ -98,17 +103,19 @@ export default function PostCard({ post, onDeleted, onUpdated }) {
         <ImageLightbox src={post.image} alt="Post attachment" onClose={() => setLightboxOpen(false)} />
       )}
 
-      <div className="mt-4 flex items-center gap-5 border-t border-border pt-3 text-sm">
+      <div className="mt-4 flex items-center gap-2 border-t border-border-light pt-3 text-sm">
         <button
           onClick={handleLike}
-          className={`flex items-center gap-1.5 transition ${liked ? 'text-bloom' : 'text-text-muted hover:text-bloom'}`}
+          className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 font-medium transition ${
+            liked ? 'bg-accent/10 text-accent' : 'text-text-muted hover:bg-accent/10 hover:text-accent'
+          }`}
         >
-          <Heart className="h-4 w-4" fill={liked ? 'currentColor' : 'none'} />
+          <Heart className={`h-4 w-4 ${justLiked ? 'animate-heart-beat' : ''}`} fill={liked ? 'currentColor' : 'none'} />
           {likesCount}
         </button>
         <button
           onClick={() => setCommentsOpen((o) => !o)}
-          className="flex items-center gap-1.5 text-text-muted transition hover:text-glow"
+          className="flex items-center gap-1.5 rounded-full px-3 py-1.5 font-medium text-text-muted transition hover:bg-primary/10 hover:text-primary"
         >
           <MessageCircle className="h-4 w-4" />
           {commentsCount}

@@ -1,20 +1,17 @@
-## Frontend Setup
+# 🎨 GlowConnect - Frontend
 
-The frontend is built with **React.js** and **Tailwind CSS** for a modern, responsive UI.
+Social Media Web Application built with React.js, Tailwind CSS, and Axios.
 
-### Core Files:
-- **`package.json`** - Contains all project dependencies and scripts
-- **`App.jsx`** - Main application component with routing and state management
+---
 
-### Tech Stack:
-- React.js
-- Tailwind CSS
-- Vite (Build Tool)
-- React Router DOM
-- Axios (API calls)
+## 🚀 Tech Stack
 
-### Setup Instructions:
-```bash
-cd frontend
-npm install
-npm run dev
+- **React.js** - UI Library
+- **Tailwind CSS** - Styling Framework  
+- **Axios** - HTTP Client
+- **React Router** - Navigation
+- **React Context** - State Management
+
+---
+
+## 📁 Folder Structure

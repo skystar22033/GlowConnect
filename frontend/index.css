@@ -20,7 +20,6 @@
   --background: #F8FAFC;
   --surface: #FFFFFF;
   --surface-raised: #F1F5F9;
-  --surface-muted: #E2E8F0;
   --ink: #0F172A;
 
   --text-primary: #0F172A;
@@ -45,6 +44,8 @@
   --gradient-brand: linear-gradient(135deg, #7C3AED 0%, #A855F7 50%, #EC4899 100%);
   --gradient-brand-soft: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
 }
+
+@layer components {
 
 /* ============================================
    BASE
@@ -326,223 +327,6 @@ a:hover {
 }
 
 /* ============================================
-   POST CARD
-   ============================================ */
-.post-card {
-  background: var(--surface);
-  border-radius: var(--radius-lg);
-  padding: 1.25rem;
-  margin-bottom: 1.25rem;
-  box-shadow: var(--shadow-card);
-  border: 1px solid var(--border-light);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.post-card:hover {
-  box-shadow: var(--shadow-card-hover);
-}
-
-.post-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-}
-
-.post-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--gradient-brand);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 700;
-  font-size: 1rem;
-  flex-shrink: 0;
-  overflow: hidden;
-}
-
-.post-avatar img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.post-username {
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.post-timestamp {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-.post-content {
-  color: var(--text-primary);
-  margin-bottom: 0.75rem;
-  line-height: 1.7;
-}
-
-.post-image {
-  width: 100%;
-  border-radius: var(--radius-md);
-  margin-bottom: 0.75rem;
-  object-fit: cover;
-  max-height: 400px;
-}
-
-.post-actions {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--border-light);
-}
-
-.post-action-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  padding: 0.25rem 0.5rem;
-  border-radius: var(--radius-sm);
-}
-
-.post-action-btn:hover {
-  color: var(--primary);
-  background: rgba(124, 58, 237, 0.05);
-}
-
-.post-action-btn.liked {
-  color: var(--accent);
-}
-
-.post-action-btn.liked:hover {
-  color: var(--accent);
-  background: rgba(236, 72, 153, 0.1);
-}
-
-/* ============================================
-   COMMENTS
-   ============================================ */
-.comment-section {
-  margin-top: 1rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--border-light);
-}
-
-.comment-item {
-  display: flex;
-  gap: 0.75rem;
-  padding: 0.5rem 0;
-}
-
-.comment-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--gradient-brand);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 600;
-  font-size: 0.75rem;
-  flex-shrink: 0;
-  overflow: hidden;
-}
-
-.comment-avatar img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.comment-body {
-  flex: 1;
-}
-
-.comment-username {
-  font-weight: 600;
-  font-size: 0.85rem;
-  color: var(--text-primary);
-}
-
-.comment-text {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-}
-
-.comment-input {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-
-.comment-input input {
-  flex: 1;
-  padding: 0.6rem 0.75rem;
-  border: 1.5px solid var(--border-light);
-  border-radius: var(--radius-md);
-  font-size: 0.85rem;
-  background: var(--surface-raised);
-  color: var(--text-primary);
-  outline: none;
-  transition: all 0.2s ease;
-}
-
-.comment-input input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.08);
-}
-
-.comment-input input::placeholder {
-  color: var(--text-faint);
-}
-
-.comment-input button {
-  padding: 0.6rem 1.2rem;
-  background: var(--gradient-brand);
-  color: white;
-  border: none;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.comment-input button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-glow);
-}
-
-.comment-input button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* ============================================
-   FEED CONTAINER
-   ============================================ */
-.feed-container {
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 1.5rem 1rem;
-}
-
-/* ============================================
    ANIMATIONS
    ============================================ */
 @keyframes float {
@@ -561,20 +345,31 @@ a:hover {
   animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-pop-in {
+  animation: popIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+@keyframes heartBeat {
+  0%, 100% { transform: scale(1); }
+  30% { transform: scale(1.35); }
+  60% { transform: scale(0.92); }
+}
+.animate-heart-beat {
+  animation: heartBeat 0.45s ease-in-out;
+}
+
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--border-light) 25%,
-    var(--surface-raised) 50%,
-    var(--border-light) 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  background: linear-gradient(90deg, var(--surface-raised) 25%, #E9E4FB 37%, var(--surface-raised) 63%);
+  background-size: 800px 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
 }
 
 /* ============================================
@@ -583,17 +378,6 @@ a:hover {
 @media (max-width: 768px) {
   .container-custom { padding: 0 1rem; }
   .card { padding: 1.15rem; border-radius: var(--radius-md); }
-  .feed-container { padding: 1rem 0.75rem; }
-  .post-card { padding: 1rem; border-radius: var(--radius-md); }
-  .post-actions { gap: 1rem; }
-  .post-avatar { width: 38px; height: 38px; font-size: 0.85rem; }
 }
 
-@media (max-width: 480px) {
-  .btn-primary, .btn-secondary, .btn-outline { 
-    padding: 0.5rem 1rem; 
-    font-size: 0.8rem;
-  }
-  .post-actions { gap: 0.75rem; }
-  .post-action-btn { font-size: 0.75rem; padding: 0.15rem 0.35rem; }
 }

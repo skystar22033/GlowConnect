@@ -29,6 +29,6 @@ export const postApi = {
     api.put(`/posts/${id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
   remove: (id) => api.delete(`/posts/${id}`),
   toggleLike: (id) => api.post(`/posts/${id}/like`),
-  addComment: (id, content) => api.post(`/posts/${id}/comments`, { content }),
+ addComment: (id, content) => api.post(`/comments/post/${id}`, { content }),
   deleteComment: (commentId) => api.delete(`/comments/${commentId}`),
 };

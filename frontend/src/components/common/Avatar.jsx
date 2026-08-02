@@ -33,18 +33,18 @@ function gradientForName(name = '') {
 export default function Avatar({ src, name = '?', size = 'md', className = '' }) {
   return (
     <div
-      className={`relative rounded-full p-[2px] bg-gradient-to-br ${gradientForName(
+      className={`relative shrink-0 rounded-full p-[2.5px] bg-gradient-to-br ${gradientForName(
         name
-      )} shadow-glow ${SIZES[size]} ${className}`}
+      )} shadow-glow transition-transform duration-300 hover:-translate-y-0.5 hover:scale-[1.03] ${SIZES[size]} ${className}`}
     >
       {src ? (
         <img
           src={src}
           alt={name}
-          className="h-full w-full rounded-full object-cover ring-2 ring-ink"
+          className="h-full w-full rounded-full object-cover ring-2 ring-white"
         />
       ) : (
-        <div className="flex h-full w-full items-center justify-center rounded-full bg-surface-raised font-display font-semibold text-text-primary ring-2 ring-ink">
+        <div className="flex h-full w-full items-center justify-center rounded-full bg-white font-display font-semibold text-primary ring-2 ring-white">
           {getInitials(name) || '?'}
         </div>
       )}
