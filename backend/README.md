@@ -60,7 +60,7 @@ glowconnect-backend/
    npm start
    ```
 
-Server starts on `http://localhost:5000` by default. Health check: `GET /api/health`.
+Server starts onn `http://localhost:5000` by default. Health check: `GET /api/health`.
 
 ## API Reference
 
@@ -205,10 +205,3 @@ curl http://localhost:5000/api/posts/feed?page=1&limit=10 \
 5. As User B, add a comment; as User A, confirm `GET /api/posts/:id` shows the populated comment.
 6. Try deleting someone else's post/comment — should return `403`.
 7. Delete your own post — confirm its comments are removed too (`GET /api/posts/:id` → `404`).
-
-## What's Next — Phase 3
-
-React frontend: auth pages, feed, create-post, profile, search, all wired to these APIs.
-
----
-✅ **Phases 1–2 complete.** Let me know when you'd like me to proceed to Phase 3, or if you'd like any changes first.
