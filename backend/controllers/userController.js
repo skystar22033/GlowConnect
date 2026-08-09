@@ -7,6 +7,8 @@ const { success } = require('../utils/apiResponse');
 
 // @route   GET /api/users/:id
 // @access  Public
+// @route   GET /api/users/:id
+// @access  Public
 const getUserProfile = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
@@ -14,10 +16,9 @@ const getUserProfile = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'Invalid user id');
   }
 
-  const user = await User.findById(id).populate('followers', 'username fullName profileImage').populate(
-    'following',
-    'username fullName profileImage'
-  );
+  const user = await User.findById(id)
+    .populate('followers', 'username fullName profileImage avatarPreferences')
+    .populate('following', 'username fullName profileImage avatarPreferences');
 
   if (!user) {
     throw new ApiError(404, 'User not found');
@@ -30,6 +31,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
       fullName: user.fullName,
       bio: user.bio,
       profileImage: user.profileImage,
+      avatarPreferences: user.avatarPreferences || { selectedAvatar: 'avatar1' },
       followers: user.followers,
       following: user.following,
       followersCount: user.followers.length,
@@ -38,9 +40,8 @@ const getUserProfile = asyncHandler(async (req, res) => {
     },
   });
 });
-
 // @route   PUT /api/users/:id
-// @access  Private (only the owner can update their own profile)
+// @access  Private
 const updateUserProfile = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
@@ -52,7 +53,6 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     throw new ApiError(403, 'You can only update your own profile');
   }
 
-  // Whitelist updatable fields — never let the client set followers, password, etc. here
   const allowedFields = ['fullName', 'bio', 'profileImage'];
   const updates = {};
   for (const field of allowedFields) {
@@ -62,7 +62,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findByIdAndUpdate(id, updates, {
     new: true,
     runValidators: true,
-  });
+  }).select('-password');
 
   if (!user) {
     throw new ApiError(404, 'User not found');
@@ -75,6 +75,36 @@ const updateUserProfile = asyncHandler(async (req, res) => {
       fullName: user.fullName,
       bio: user.bio,
       profileImage: user.profileImage,
+      avatarPreferences: user.avatarPreferences || null,
+    },
+  });
+});
+
+// ✅ NEW: Update avatar preferences
+const updateAvatarPreferences = asyncHandler(async (req, res) => {
+  const { avatarPreferences } = req.body;
+
+  if (!avatarPreferences || !avatarPreferences.selectedAvatar) {
+    throw new ApiError(400, 'Avatar selection is required');
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    { avatarPreferences },
+    { new: true, runValidators: true }
+  ).select('-password');
+
+  if (!user) {
+    throw new ApiError(404, 'User not found');
+  }
+
+  return success(res, 200, 'Avatar updated successfully', {
+    user: {
+      _id: user._id,
+      username: user.username,
+      fullName: user.fullName,
+      profileImage: user.profileImage,
+      avatarPreferences: user.avatarPreferences,
     },
   });
 });
@@ -93,7 +123,7 @@ const searchUsers = asyncHandler(async (req, res) => {
   const users = await User.find({
     $or: [{ username: regex }, { fullName: regex }],
   })
-    .select('username fullName profileImage bio')
+    .select('username fullName profileImage bio avatarPreferences')
     .limit(20);
 
   return success(res, 200, 'Search results', { users, count: users.length });
@@ -102,7 +132,7 @@ const searchUsers = asyncHandler(async (req, res) => {
 // @route   POST /api/users/:id/follow
 // @access  Private
 const toggleFollow = asyncHandler(async (req, res) => {
-  const { id } = req.params; // user being followed/unfollowed
+  const { id } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new ApiError(400, 'Invalid user id');
@@ -141,8 +171,6 @@ const toggleFollow = asyncHandler(async (req, res) => {
 
 // @route   POST /api/users/me/avatar
 // @access  Private
-// @notes   multipart/form-data with field name "avatar"; replaces the previous
-//          Cloudinary image (if any) so we don't leak orphaned uploads.
 const uploadAvatar = asyncHandler(async (req, res) => {
   if (!req.file) {
     throw new ApiError(400, 'No image file provided');
@@ -155,8 +183,8 @@ const uploadAvatar = asyncHandler(async (req, res) => {
     await cloudinary.uploader.destroy(user.profileImagePublicId).catch(() => {});
   }
 
-  user.profileImage = req.file.path; // secure_url
-  user.profileImagePublicId = req.file.filename; // public_id
+  user.profileImage = req.file.path;
+  user.profileImagePublicId = req.file.filename;
   await user.save();
 
   return success(res, 200, 'Profile photo updated', {
@@ -164,5 +192,11 @@ const uploadAvatar = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { getUserProfile, updateUserProfile, searchUsers, toggleFollow, uploadAvatar };
-
+module.exports = {
+  getUserProfile,
+  updateUserProfile,
+  updateAvatarPreferences,
+  searchUsers,
+  toggleFollow,
+  uploadAvatar,
+};

@@ -9,12 +9,26 @@ const postSchema = new mongoose.Schema(
       maxlength: [2000, 'Post content cannot exceed 2000 characters'],
     },
     image: {
-      type: String, // Cloudinary secure_url
+      type: String,
       default: '',
     },
     imagePublicId: {
-      type: String, // Cloudinary public_id, needed to delete the image later
+      type: String,
       default: '',
+    },
+    // ✅ Video fields
+    video: {
+      type: String,
+      default: '',
+    },
+    videoPublicId: {
+      type: String,
+      default: '',
+    },
+    mediaType: {
+      type: String,
+      enum: ['image', 'video', 'none'],
+      default: 'none',
     },
     author: {
       type: mongoose.Schema.Types.ObjectId,

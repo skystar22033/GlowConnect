@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Password is required'],
       minlength: [8, 'Password must be at least 8 characters'],
-      select: false, // never returned by default in queries
+      select: false,
     },
     fullName: {
       type: String,
@@ -40,11 +40,17 @@ const userSchema = new mongoose.Schema(
     },
     profileImage: {
       type: String,
-      default: '', // Cloudinary secure_url
+      default: '',
     },
+    
     profileImagePublicId: {
       type: String,
-      default: '', // Cloudinary public_id, needed to delete/replace the avatar later
+      default: '',
+    },
+    // ✅ SIMPLIFIED: Only store selected avatar ID
+    avatarPreferences: {
+      selectedAvatar: { type: String, default: 'avatar1' },
+      avatarImage: { type: String, default: '' },
     },
     followers: [
       {
@@ -57,22 +63,25 @@ const userSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
       },
-      
     ],
-     // Add avatar preferences
-    avatarPreferences: {
-      style: { type: String, default: 'avataaars' },
-      skinColor: { type: String, default: 'F5D0B8' },
-      hairColor: { type: String, default: '1A1A1A' },
-      outfitColor: { type: String, default: '2C3E50' },
-      backgroundColor: { type: String, default: 'transparent' },
-    },
+    // Add to existing schema
+lastActive: {
+  type: Date,
+  default: Date.now,
+},
+isOnline: {
+  type: Boolean,
+  default: false,
+},
+savedPosts: [{
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'Post',
+}],
   },
-
   { timestamps: true }
 );
 
-// Hash password before saving, only if it was modified
+// Hash password before saving
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   const salt = await bcrypt.genSalt(10);
@@ -80,12 +89,12 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-// Instance method to compare plaintext password with hashed password
+// Compare password method
 userSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-// Virtual counts so we don't have to send full arrays to the client
+// Virtual counts
 userSchema.virtual('followersCount').get(function () {
   return this.followers?.length || 0;
 });
