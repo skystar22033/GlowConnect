@@ -1,53 +1,77 @@
-// Signature element: every avatar carries a soft "glow ring" — a subtle halo
-// that reinforces the GlowConnect identity across the whole app.
+import { getAvatarImage } from '../../data/avatarData';
 
-const SIZES = {
-  sm: 'h-8 w-8 text-xs',
-  md: 'h-11 w-11 text-sm',
-  lg: 'h-16 w-16 text-lg',
-  xl: 'h-24 w-24 text-2xl',
-};
-
-function getInitials(name = '') {
-  return name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((w) => w[0]?.toUpperCase())
-    .join('');
-}
-
-// Deterministic gradient per-user so the same person always gets the same fallback color
-function gradientForName(name = '') {
-  const gradients = [
-    'from-glow to-bloom',
-    'from-bloom to-purple-400',
-    'from-glow-soft to-glow',
-    'from-purple-400 to-glow',
-  ];
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  return gradients[Math.abs(hash) % gradients.length];
-}
-
-export default function Avatar({ src, name = '?', size = 'md', className = '' }) {
-  return (
-    <div
-      className={`relative shrink-0 rounded-full p-[2.5px] bg-gradient-to-br ${gradientForName(
-        name
-      )} shadow-glow transition-transform duration-300 hover:-translate-y-0.5 hover:scale-[1.03] ${SIZES[size]} ${className}`}
-    >
-      {src ? (
+export default function Avatar({ 
+  src, 
+  name, 
+  size = 'md', 
+  className = '', 
+  username,
+  avatarPreferences 
+}) {
+  // ✅ Priority 1: Real uploaded photo
+  if (src && src.startsWith('http')) {
+    return (
+      <div className={`rounded-full overflow-hidden flex-shrink-0 bg-gradient-brand ${getSizeClass(size)} ${className}`}>
         <img
           src={src}
-          alt={name}
-          className="h-full w-full rounded-full object-cover ring-2 ring-white"
+          alt={name || 'Avatar'}
+          className="w-full h-full object-cover"
         />
-      ) : (
-        <div className="flex h-full w-full items-center justify-center rounded-full bg-white font-display font-semibold text-primary ring-2 ring-white">
-          {getInitials(name) || '?'}
-        </div>
-      )}
+      </div>
+    );
+  }
+
+  // ✅ Priority 2: Selected avatar
+  if (avatarPreferences?.selectedAvatar) {
+    const avatarUrl = getAvatarImage(avatarPreferences.selectedAvatar);
+    return (
+      <div className={`rounded-full overflow-hidden flex-shrink-0 bg-gradient-brand ${getSizeClass(size)} ${className}`}>
+        <img
+          src={avatarUrl}
+          alt={name || 'Avatar'}
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            e.target.src = `https://ui-avatars.com/api/?name=${name || 'User'}&background=6C63FF&color=fff&size=128&rounded=true`;
+          }}
+        />
+      </div>
+    );
+  }
+
+  // ✅ Priority 3: Generate based on username
+  if (username) {
+    const avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}&backgroundColor=transparent`;
+    return (
+      <div className={`rounded-full overflow-hidden flex-shrink-0 bg-gradient-brand ${getSizeClass(size)} ${className}`}>
+        <img
+          src={avatarUrl}
+          alt={name || 'Avatar'}
+          className="w-full h-full object-cover"
+        />
+      </div>
+    );
+  }
+
+  // ✅ Priority 4: Fallback to initials
+  return (
+    <div className={`rounded-full overflow-hidden flex-shrink-0 bg-gradient-brand ${getSizeClass(size)} ${className}`}>
+      <div className="w-full h-full flex items-center justify-center text-white font-bold text-2xl">
+        {name?.charAt(0).toUpperCase() || 'U'}
+      </div>
     </div>
   );
+}
+
+function getSizeClass(size) {
+  const sizeClasses = {
+    xs: 'w-6 h-6 text-xs',
+    sm: 'w-8 h-8 text-sm',
+    md: 'w-10 h-10 text-base',
+    lg: 'w-12 h-12 text-lg',
+    xl: 'w-16 h-16 text-xl',
+    '2xl': 'w-20 h-20 text-2xl',
+    '3xl': 'w-24 h-24 text-3xl',
+    '4xl': 'w-32 h-32 text-4xl',
+  };
+  return sizeClasses[size] || sizeClasses.md;
 }

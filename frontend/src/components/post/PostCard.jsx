@@ -8,6 +8,11 @@ import CommentSection from './CommentSection';
 import ImageLightbox from './ImageLightbox';
 import { postApi } from '../../api/endpoints';
 import { useAuth } from '../../context/AuthContext';
+// Add these imports
+import SaveButton from './SaveButton';
+import ShareButton from './ShareButton';
+import ReactionPicker from './ReactionPicker';
+import Poll from './Poll';
 
 export default function PostCard({ post, onDeleted, onUpdated }) {
   const { user } = useAuth();
@@ -22,7 +27,6 @@ export default function PostCard({ post, onDeleted, onUpdated }) {
   const isOwner = user?._id === post.author?._id;
 
   const handleLike = async () => {
-    // Optimistic update, roll back on failure
     const nextLiked = !liked;
     setLiked(nextLiked);
     setLikesCount((c) => c + (nextLiked ? 1 : -1));
@@ -96,6 +100,33 @@ export default function PostCard({ post, onDeleted, onUpdated }) {
           loading="lazy"
           onClick={() => setLightboxOpen(true)}
           className="mt-4 max-h-[480px] w-full cursor-zoom-in rounded-2xl object-cover transition-transform duration-300 hover:scale-[1.01]"
+        />
+      )}
+
+      {post.video && (
+        <div className="relative w-full aspect-square bg-black rounded-xl overflow-hidden mt-2">
+          <video 
+            src={post.video} 
+            className="w-full h-full object-cover"
+            controls
+            playsInline
+          />
+        </div>
+      )}
+
+      {/* ✅ FIXED: Moved inside return */}
+      <div className="flex items-center gap-4 px-3 py-2">
+        <ReactionPicker postId={post._id} onReact={() => {}} />
+        <SaveButton postId={post._id} />
+        <ShareButton postId={post._id} content={post.content} />
+      </div>
+
+      {post.poll && (
+        <Poll
+          pollId={post.poll._id}
+          question={post.poll.question}
+          options={post.poll.options}
+          totalVotes={post.poll.totalVotes}
         />
       )}
 

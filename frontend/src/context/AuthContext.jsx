@@ -13,7 +13,6 @@ export function AuthProvider({ children }) {
   });
   const [loading, setLoading] = useState(true);
 
-  // On first load, verify any stored token is still valid and refresh user data
   useEffect(() => {
     const token = localStorage.getItem(TOKEN_KEY);
     if (!token) {
@@ -63,6 +62,7 @@ export function AuthProvider({ children }) {
 
   const updateLocalUser = useCallback((patch) => {
     setUser((prev) => {
+      if (!prev) return null;
       const next = { ...prev, ...patch };
       localStorage.setItem(USER_KEY, JSON.stringify(next));
       return next;

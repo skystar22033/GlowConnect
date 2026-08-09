@@ -3,14 +3,17 @@ import { useParams } from 'react-router-dom';
 import { Image as ImageIcon, Loader2, Sparkles } from 'lucide-react';
 import { toast } from 'react-toastify';
 import MainLayout from '../components/layout/MainLayout';
-import Avatar from '../components/common/Avatar';
 import PostCard from '../components/post/PostCard';
 import EmptyState from '../components/common/EmptyState';
 import EditProfileModal from '../components/post/EditProfileModal';
-import AvatarSelector from '../components/Avatar/AvatarSelector';
 import { userApi, postApi } from '../api/endpoints';
 import { useAuth } from '../context/AuthContext';
-import { getUserAvatar } from '../utils/avatar';
+
+// ✅ Helper function
+const getInitials = (name) => {
+  if (!name) return 'U';
+  return name.charAt(0).toUpperCase();
+};
 
 export default function ProfilePage() {
   const { id } = useParams();
@@ -22,8 +25,6 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [followBusy, setFollowBusy] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
-  const [showAvatarSelector, setShowAvatarSelector] = useState(false);
-  const [avatarLoading, setAvatarLoading] = useState(false);
 
   const isOwnProfile = currentUser?._id === id;
 
@@ -71,50 +72,6 @@ export default function ProfilePage() {
     setPage(nextPage);
   };
 
-  // Handle saving avatar preferences
-  const handleSaveAvatar = async (preferences) => {
-    setAvatarLoading(true);
-    try {
-      const token = localStorage.getItem('glowconnect_token');
-      const response = await fetch('http://localhost:5001/api/users/me/avatar-preferences', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ avatarPreferences: preferences }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to save avatar');
-      }
-
-      const data = await response.json();
-      
-      // Update local profile
-      setProfile((prev) => ({
-        ...prev,
-        avatarPreferences: preferences,
-        profileImage: data.data.user?.profileImage || prev.profileImage,
-      }));
-
-      // Update current user context
-      if (isOwnProfile && updateLocalUser) {
-        updateLocalUser({
-          avatarPreferences: preferences,
-        });
-      }
-
-      toast.success('Avatar updated successfully! 🎨');
-      setShowAvatarSelector(false);
-    } catch (error) {
-      console.error('Error saving avatar:', error);
-      toast.error('Failed to save avatar. Please try again.');
-    } finally {
-      setAvatarLoading(false);
-    }
-  };
-
   if (loading) {
     return (
       <MainLayout>
@@ -133,26 +90,21 @@ export default function ProfilePage() {
         <div className="card relative overflow-hidden p-0">
           <div className="h-24 w-full bg-gradient-brand" />
           <div className="relative flex flex-col items-center gap-4 px-6 pb-6 -mt-12 sm:flex-row sm:items-end sm:px-8">
-            {/* Avatar with edit button */}
+            {/* ✅ Profile Image - No Avatar */}
             <div className="relative">
               <div className="rounded-full bg-white p-1 shadow-glow">
-                <Avatar 
-                  src={profile.profileImage} 
-                  name={profile.fullName} 
-                  size="xl"
-                  avatarPreferences={profile.avatarPreferences}
-                  username={profile.username}
-                />
+                {profile?.profileImage ? (
+                  <img
+                    src={profile.profileImage}
+                    alt={profile.fullName}
+                    className="w-24 h-24 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-24 h-24 rounded-full bg-gradient-brand flex items-center justify-center text-white font-bold text-3xl">
+                    {getInitials(profile?.fullName || profile?.username)}
+                  </div>
+                )}
               </div>
-              {isOwnProfile && (
-                <button
-                  onClick={() => setShowAvatarSelector(true)}
-                  className="absolute -bottom-1 -right-1 p-1.5 bg-primary rounded-full shadow-glow hover:scale-110 transition-transform"
-                  title="Customize Avatar"
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-white" />
-                </button>
-              )}
             </div>
 
             <div className="flex-1 pt-2 text-center sm:pt-0 sm:text-left">
@@ -215,7 +167,6 @@ export default function ProfilePage() {
         )}
       </div>
 
-      {/* Edit Profile Modal */}
       {editOpen && (
         <EditProfileModal
           profile={profile}
@@ -225,16 +176,6 @@ export default function ProfilePage() {
             updateLocalUser(updated);
             setEditOpen(false);
           }}
-        />
-      )}
-
-      {/* Avatar Selector Modal */}
-      {showAvatarSelector && (
-        <AvatarSelector
-          user={profile}
-          onSave={handleSaveAvatar}
-          onClose={() => setShowAvatarSelector(false)}
-          loading={avatarLoading}
         />
       )}
     </MainLayout>

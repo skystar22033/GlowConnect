@@ -380,4 +380,56 @@ a:hover {
   .card { padding: 1.15rem; border-radius: var(--radius-md); }
 }
 
+/* ============================================
+   STORIES
+   ============================================ */
+.stories-container {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.stories-container::-webkit-scrollbar {
+  display: none;
+}
+
+.story-ring {
+  @apply rounded-full p-[2px];
+  background: linear-gradient(135deg, #6C63FF, #FF6B9D);
+}
+
+.story-ring.active {
+  background: linear-gradient(135deg, #6C63FF, #FF6B9D, #00D4FF);
+  animation: storyPulse 2s ease-in-out infinite;
+}
+
+.story-ring.inactive {
+  background: var(--border);
+}
+
+@keyframes storyPulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(108, 99, 255, 0.3); }
+  50% { box-shadow: 0 0 25px rgba(108, 99, 255, 0.6); }
+}
+/* Add dark mode styles */
+.dark {
+  --background: #0A0E17;
+  --surface: #141E2B;
+  --surface-raised: #1A2744;
+  --text-primary: #FFFFFF;
+  --text-secondary: #A0B4C8;
+  --text-muted: #6B85A0;
+  --border: #2A3A5A;
+  --border-light: #3A4A6A;
+}
+
+/* Light mode (default) */
+:root {
+  --background: #F8FAFC;
+  --surface: #FFFFFF;
+  --surface-raised: #F1F5F9;
+  --text-primary: #0F172A;
+  --text-secondary: #334155;
+  --text-muted: #64748B;
+  --border: #E2E8F0;
+  --border-light: #EDF2F7;
+}
 }

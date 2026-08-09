@@ -1,6 +1,8 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { LogOut, User, Home, Search, PlusSquare, Sparkles } from 'lucide-react';
+import SoundToggle from '../settings/SoundToggle';
+import NotificationBell from '../navigation/NotificationBell';
+import { LogOut, Home, Search, PlusSquare, Sparkles, MessageCircle, User } from 'lucide-react';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -42,7 +44,31 @@ export default function Navbar() {
           {navLink('/feed', Home, 'Feed')}
           {navLink('/search', Search, 'Search')}
           {navLink('/feed', PlusSquare, 'Create post')}
-          {navLink(`/profile/${user?._id}`, User, 'Profile')}
+          {navLink('/messages', MessageCircle, 'Messages')}
+          
+          {/* ✅ Profile - Use User Icon with image */}
+          <Link
+            to={`/profile/${user?._id}`}
+            className="relative flex h-10 w-10 items-center justify-center rounded-full transition-all duration-200 hover:opacity-80 overflow-hidden"
+          >
+            {user?.profileImage ? (
+              <img
+                src={user.profileImage}
+                alt={user.fullName}
+                className="w-full h-full object-cover rounded-full"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-brand rounded-full flex items-center justify-center text-white font-bold text-sm">
+                {user?.fullName?.charAt(0).toUpperCase() || 'U'}
+              </div>
+            )}
+            {isActive(`/profile/${user?._id}`) && (
+              <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-primary rounded-full" />
+            )}
+          </Link>
+          
+          <NotificationBell />
+          <SoundToggle />
           <button
             onClick={handleLogout}
             title="Log out"
