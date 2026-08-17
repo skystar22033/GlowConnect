@@ -6,6 +6,7 @@ const {
   searchUsers,
   toggleFollow,
   updateAvatarPreferences,
+  getUserStatus,
   uploadAvatar,
 } = require('../controllers/userController');
 const { protect } = require('../middleware/auth');
@@ -15,6 +16,8 @@ const { updateProfileValidation } = require('../validators/userValidators');
 
 // NOTE: /search must be registered before /:id
 router.get('/search', searchUsers);
+// Add this route
+router.get('/:id/status', protect, getUserStatus);
 
 // ✅ Avatar upload - using upload.single('avatar')
 router.post('/me/avatar', protect, upload.single('avatar'), uploadAvatar);

@@ -42,6 +42,20 @@ const getUserProfile = asyncHandler(async (req, res) => {
 });
 // @route   PUT /api/users/:id
 // @access  Private
+
+// @route   GET /api/users/:id/status
+// @access  Private
+const getUserStatus = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  
+  const onlineUsers = req.app.get('onlineUsers') || new Map();
+  const isOnline = onlineUsers.has(id);
+  
+  return success(res, 200, 'User status fetched', { isOnline });
+});
+
+
+
 const updateUserProfile = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
@@ -199,4 +213,5 @@ module.exports = {
   searchUsers,
   toggleFollow,
   uploadAvatar,
+  getUserStatus, // ✅ ADD THIS
 };
