@@ -1,51 +1,68 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Send, ArrowLeft, UserPlus } from 'lucide-react';
+import { useParams, Link } from 'react-router-dom';
+import { Send, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import Navbar from '../components/common/Navbar';
-import Avatar from '../components/common/Avatar';
 import { toast } from 'react-toastify';
+import io from 'socket.io-client';
 
 const API_URL = 'http://localhost:5001/api';
 
 export default function ChatPage() {
   const { userId } = useParams();
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [recipient, setRecipient] = useState(null);
-  const [sending, setSending] = useState(false);
-  const messagesEndRef = useRef(null);
   const [socket, setSocket] = useState(null);
+  const [isOnline, setIsOnline] = useState(false);
+  const messagesEndRef = useRef(null);
 
+  // ✅ Connect to Socket.io
   useEffect(() => {
-    // Socket connection
     const token = localStorage.getItem('glowconnect_token') || localStorage.getItem('token');
-    if (token) {
-      import('socket.io-client').then((io) => {
-        const socket = io.default('http://localhost:5001', {
-          auth: { token },
-          transports: ['websocket'],
-        });
-        setSocket(socket);
+    if (!token) return;
 
-        socket.on('new-message', (data) => {
-          setMessages(prev => [...prev, data]);
-        });
+    const newSocket = io('http://localhost:5001', {
+      auth: { token },
+      transports: ['websocket'],
+    });
 
-        return () => socket.disconnect();
-      });
-    }
-  }, []);
+    newSocket.on('connect', () => {
+      console.log('✅ Socket connected');
+    });
+
+    // ✅ Listen for online status updates
+    newSocket.on('user-online', (data) => {
+      if (data.userId === userId) {
+        setIsOnline(true);
+      }
+    });
+
+    newSocket.on('user-offline', (data) => {
+      if (data.userId === userId) {
+        setIsOnline(false);
+      }
+    });
+
+    // ✅ Listen for new messages
+    newSocket.on('new-message', (data) => {
+      console.log('📨 New message received:', data);
+      setMessages(prev => [...prev, data]);
+    });
+
+    setSocket(newSocket);
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, [userId]);
 
   useEffect(() => {
-    if (userId) {
-      fetchMessages();
-      fetchRecipient();
-    }
+    fetchMessages();
+    fetchRecipient();
   }, [userId]);
 
   const fetchMessages = async () => {
@@ -63,24 +80,31 @@ export default function ChatPage() {
   };
 
   const fetchRecipient = async () => {
+  try {
+    const token = localStorage.getItem('glowconnect_token') || localStorage.getItem('token');
+    const res = await axios.get(`${API_URL}/users/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    setRecipient(res.data.data?.user);
+    
+    // ✅ Check if recipient is online
     try {
-      const token = localStorage.getItem('glowconnect_token') || localStorage.getItem('token');
-      const res = await axios.get(`${API_URL}/users/${userId}`, {
+      const statusRes = await axios.get(`${API_URL}/users/${userId}/status`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setRecipient(res.data.data?.user);
-    } catch (error) {
-      console.error('Error fetching recipient:', error);
-      toast.error('User not found');
-      navigate('/messages');
+      setIsOnline(statusRes.data.data?.isOnline || false);
+    } catch (e) {
+      console.log('Status check failed, defaulting to offline');
     }
-  };
-
+    
+  } catch (error) {
+    console.error('Error fetching recipient:', error);
+  }
+};
   const sendMessage = async (e) => {
     e.preventDefault();
-    if (!newMessage.trim() || sending) return;
+    if (!newMessage.trim()) return;
 
-    setSending(true);
     try {
       const token = localStorage.getItem('glowconnect_token') || localStorage.getItem('token');
       const res = await axios.post(`${API_URL}/messages`, {
@@ -90,19 +114,17 @@ export default function ChatPage() {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      const newMsg = res.data.data.message;
-      setMessages(prev => [...prev, newMsg]);
+      const sentMessage = res.data.data.message;
+      setMessages(prev => [...prev, sentMessage]);
       setNewMessage('');
 
-      // Emit via socket
+      // ✅ Emit via socket
       if (socket) {
-        socket.emit('send-message', newMsg);
+        socket.emit('send-message', sentMessage);
       }
     } catch (error) {
       console.error('Error sending message:', error);
       toast.error('Failed to send message');
-    } finally {
-      setSending(false);
     }
   };
 
@@ -137,16 +159,22 @@ export default function ChatPage() {
           <Link to="/messages" className="p-2 hover:bg-surface-raised rounded-full transition">
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <Avatar 
-            src={recipient.profileImage}
-            name={recipient.fullName}
-            username={recipient.username}
-            avatarPreferences={recipient.avatarPreferences}
-            size="lg"
-          />
-          <div className="flex-1">
+          <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-brand">
+            {recipient.profileImage ? (
+              <img src={recipient.profileImage} alt={recipient.username} className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-white font-bold">
+                {recipient.username?.charAt(0).toUpperCase()}
+              </div>
+            )}
+          </div>
+          <div>
             <p className="font-semibold">{recipient.fullName || recipient.username}</p>
             <p className="text-xs text-text-muted">@{recipient.username}</p>
+            {/* ✅ Dynamic Online Status */}
+            <p className={`text-xs font-medium ${isOnline ? 'text-green-500' : 'text-text-muted'}`}>
+              {isOnline ? '● Online' : 'Offline'}
+            </p>
           </div>
         </div>
 
@@ -188,7 +216,7 @@ export default function ChatPage() {
             />
             <button
               type="submit"
-              disabled={!newMessage.trim() || sending}
+              disabled={!newMessage.trim()}
               className="btn-primary flex items-center gap-2 disabled:opacity-50"
             >
               <Send className="w-4 h-4" />

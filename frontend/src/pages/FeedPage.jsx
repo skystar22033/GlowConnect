@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, MessageCircle, Share2, MoreHorizontal, Search, PlusSquare, Sparkles, X, Volume2, VolumeX } from 'lucide-react';
+import { Heart, MessageCircle, Search, PlusSquare, Sparkles, Volume2, VolumeX } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import Navbar from '../components/common/Navbar';
 import BottomNav from '../components/navigation/BottomNav';
 import PostSkeleton from '../components/post/PostSkeleton';
+import SaveButton from '../components/post/SaveButton';
+import ShareButton from '../components/post/ShareButton';
+import ReactionPicker from '../components/post/ReactionPicker';
 
 const API_URL = 'http://localhost:5001/api';
 
@@ -96,7 +99,6 @@ export default function FeedPage() {
     setMutedVideos(prev => ({ ...prev, [postId]: !prev[postId] }));
   };
 
-  // ✅ Helper function to get user initials
   const getInitials = (name) => {
     if (!name) return 'U';
     return name.charAt(0).toUpperCase();
@@ -166,7 +168,7 @@ export default function FeedPage() {
 
           return (
             <div key={post._id} className="post-card rounded-none border-0 border-b border-border bg-transparent shadow-none p-0 animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
-              {/* ✅ Post Header - No Avatar */}
+              {/* Post Header - WITHOUT 3 DOTS */}
               <div className="flex items-center gap-3 p-3">
                 <Link to={`/profile/${post.author?._id}`}>
                   {post.author?.profileImage ? (
@@ -189,12 +191,9 @@ export default function FeedPage() {
                     @{post.author?.username} · {new Date(post.createdAt).toLocaleDateString()}
                   </p>
                 </div>
-                <button className="p-1.5 rounded-full hover:bg-surface-raised transition">
-                  <MoreHorizontal className="w-4 h-4 text-text-muted" />
-                </button>
+                {/* ✅ 3 DOTS REMOVED - No menu here */}
               </div>
 
-              {/* Post Content */}
               <p className="px-3 pb-2 text-sm">{post.content}</p>
 
               {post.image && (
@@ -220,8 +219,15 @@ export default function FeedPage() {
                 </div>
               )}
 
-              {/* Post Actions */}
+              {/* Reaction, Save, Share */}
               <div className="flex items-center gap-4 px-3 py-2">
+                <ReactionPicker postId={post._id} onReact={fetchFeed} />
+                <SaveButton postId={post._id} />
+                <ShareButton postId={post._id} content={post.content} />
+              </div>
+
+              {/* Post Actions */}
+              <div className="flex items-center gap-4 px-3 py-2 border-t border-border">
                 <button
                   onClick={() => handleLike(post._id)}
                   className={`flex items-center gap-1 ${isLiked ? 'text-bloom' : 'text-text-muted'}`}
@@ -235,9 +241,6 @@ export default function FeedPage() {
                 >
                   <MessageCircle className="w-5 h-5" />
                   <span>{comments.length}</span>
-                </button>
-                <button className="flex items-center gap-1 text-text-muted">
-                  <Share2 className="w-5 h-5" />
                 </button>
               </div>
 
